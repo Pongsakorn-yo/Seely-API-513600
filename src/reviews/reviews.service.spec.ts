@@ -1,8 +1,15 @@
 /**
  * ============================================
- * Reviews Service Unit Tests
+ * Reviews Service Unit Tests (BONUS FEATURE #1)
  * ============================================
  * ทดสอบการสร้างรีวิวและดูรายการรีวิว
+ * 
+ * 🎯 Bonus Feature: Unit Tests (6 test cases)
+ * - Create: สร้างรีวิวพร้อมคำนวณ stats (avg, count)
+ * - Create: NotFoundException เมื่อไม่พบ series
+ * - List: แสดงรายการรีวิวของ series
+ * - List: NotFoundException เมื่อไม่พบ series
+ * - Pagination: คำนวณ totalPages ถูกต้อง
  */
 
 import { Test, TestingModule } from "@nestjs/testing";

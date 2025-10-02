@@ -1,3 +1,22 @@
+/**
+ * ============================================
+ * End-to-End (E2E) Tests (BONUS FEATURE #2)
+ * ============================================
+ * ทดสอบการทำงานของ API ทั้งระบบแบบ Integration
+ * 
+ * 🎯 Bonus Feature: E2E Tests (8+ scenarios)
+ * 1. Authentication: Register และ Login
+ * 2. Create Series: ต้องมี JWT token
+ * 3. List Series: Public (ไม่ต้อง login)
+ * 4. Get Series by ID: Public
+ * 5. Create Review: ต้องมี JWT token
+ * 6. List Reviews: Public
+ * 7. Update Series: เฉพาะ owner (Ownership Guard)
+ * 8. Delete Series: เฉพาะ owner (Ownership Guard)
+ * 
+ * ใช้ SQLite in-memory database สำหรับการทดสอบ
+ */
+
 import { INestApplication } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import { ConfigModule } from "@nestjs/config";

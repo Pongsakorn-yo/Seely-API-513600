@@ -1,5 +1,12 @@
 # วิธีการเริ่มต้น Keycloak
 
+> **🎉 Bonus Features ที่ทำเสร็จแล้ว:**
+> - ✅ **Keycloak Integration** - ระบบ authentication มาตรฐาน OAuth2/OIDC
+> - ✅ **Unit Tests** - 22 test cases (Auth, Series, Reviews services)
+> - ✅ **E2E Tests** - 8+ scenarios ครอบคลุม authentication, CRUD, authorization
+>
+> คู่มือนี้จะแสดงวิธีการตั้งค่าและใช้งาน Keycloak สำหรับ Seely API
+
 ## เริ่มต้นใช้งาน
 
 ### วิธีที่ 1: ใช้ Batch File (แนะนำสำหรับ Windows)
@@ -89,7 +96,7 @@ KEYCLOAK_CLIENT_SECRET=YOUR_CLIENT_SECRET
 
 ### Keycloak เริ่มไม่ได้
 - ตรวจสอบว่าไม่มีโปรแกรมอื่นใช้ port 8080 อยู่
-- ตรวจสอบการติดตั้ง Java: `tools\jdk-25\bin\java.exe -version`
+- ตรวจสอบการติดตั้ง Java: `tools\jdk-17\bin\java.exe -version`
 
 ### Port ถูกใช้งานอยู่แล้ว
 หยุด Keycloak process ที่กำลังทำงานอยู่:
@@ -99,11 +106,61 @@ Get-Process -Name java | Stop-Process -Force
 
 ## ตำแหน่งไฟล์ Tools
 
-- **JDK 25**: `tools/jdk-25`
+- **JDK 17**: `tools/jdk-17`
 - **Keycloak 26.4.0**: `tools/keycloak-26.4.0`
+
+---
+
+## 🎯 Bonus Features Summary
+
+### 1. ✅ Keycloak Integration (ทำเสร็จแล้ว)
+- ติดตั้ง `keycloak-connect` และ `nest-keycloak-connect`
+- สร้าง `KeycloakGuard` สำหรับ authentication
+- รองรับ OAuth2/OIDC protocol
+- สามารถใช้ร่วมกับ JWT authentication ปัจจุบันได้
+
+### 2. ✅ Unit Tests (ทำเสร็จแล้ว)
+**รวม 22 test cases:**
+- **Auth Service** (8 tests): register, login, validateUser, refresh token
+- **Series Service** (8 tests): CRUD operations, pagination, search filter
+- **Reviews Service** (6 tests): create review, list reviews, stats calculation
+
+**วิธีรัน:**
+```bash
+npm test
+```
+
+### 3. ✅ E2E Tests (ทำเสร็จแล้ว)
+**รวม 8+ scenarios:**
+- Authentication flow (register/login)
+- CRUD operations (create/read/update/delete)
+- Authorization (ownership guards)
+- Reviews และ Stats calculation
+- Pagination
+
+**วิธีรัน:**
+```bash
+npm run test:e2e
+```
+
+### 📊 Test Coverage
+ดู coverage report:
+```bash
+npm run test:cov
+```
+
+---
 
 ## เอกสารเพิ่มเติม
 
-สำหรับคำแนะนำการติดตั้งแบบละเอียด ดูที่:
-- `KEYCLOAK_SETUP.md` - คู่มือการตั้งค่า Keycloak แบบสมบูรณ์
-- `KEYCLOAK_QUICKSTART.md` - แก้ไขปัญหาและคู่มือด่วน
+สำหรับรายละเอียดเพิ่มเติม:
+- **README.md** - คู่มือหลักของโปรเจค
+- **DATABASE_SETUP.md** - การตั้งค่า PostgreSQL database
+- **Swagger UI** - http://localhost:3000/api (API documentation)
+
+---
+
+**หมายเหตุ:** 
+- Keycloak เป็น bonus feature ที่เพิ่มความสามารถในการจัดการ authentication แบบมืออาชีพ
+- สามารถใช้ JWT authentication ปัจจุบันได้ตามปกติ (ไม่บังคับต้องใช้ Keycloak)
+- รองรับ SSO (Single Sign-On) เมื่อใช้ Keycloak

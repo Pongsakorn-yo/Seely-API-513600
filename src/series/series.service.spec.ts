@@ -1,8 +1,16 @@
 /**
  * ============================================
- * Series Service Unit Tests
+ * Series Service Unit Tests (BONUS FEATURE #1)
  * ============================================
  * ทดสอบ CRUD operations และ pagination
+ * 
+ * 🎯 Bonus Feature: Unit Tests (8 test cases)
+ * - Create: สร้าง series ใหม่
+ * - List: แสดงรายการพร้อม pagination
+ * - Filter: ค้นหาตาม search query
+ * - FindOne: หา series ตาม ID (สำเร็จ, NotFoundException)
+ * - Update: แก้ไข series (สำเร็จ, NotFoundException)
+ * - Remove: ลบ series (สำเร็จ, NotFoundException)
  */
 
 import { Test, TestingModule } from "@nestjs/testing";

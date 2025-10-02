@@ -1,9 +1,14 @@
 /**
  * ============================================
- * Keycloak Guard
+ * Keycloak Guard (BONUS FEATURE #3)
  * ============================================
  * Guard สำหรับตรวจสอบ authentication ผ่าน Keycloak
  * ใช้แทน JWT Guard เดิมได้
+ * 
+ * 🎯 Bonus Feature: Keycloak Integration
+ * - รองรับ OAuth2/OIDC protocol
+ * - ใช้ร่วมกับ JWT authentication ได้
+ * - รองรับ SSO (Single Sign-On)
  */
 
 import {

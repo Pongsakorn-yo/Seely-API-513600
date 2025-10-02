@@ -1,8 +1,14 @@
 /**
  * ============================================
- * Auth Service Unit Tests
+ * Auth Service Unit Tests (BONUS FEATURE #1)
  * ============================================
  * ทดสอบ business logic ของ AuthService
+ * 
+ * 🎯 Bonus Feature: Unit Tests (8 test cases)
+ * - Register: สำเร็จ, ซ้ำ (ConflictException)
+ * - Login: สำเร็จ, ผิด (UnauthorizedException)
+ * - ValidateUser: ถูกต้อง, ผิด
+ * - Refresh Token: สำเร็จ, ผิด (UnauthorizedException)
  */
 
 import { Test, TestingModule } from "@nestjs/testing";
