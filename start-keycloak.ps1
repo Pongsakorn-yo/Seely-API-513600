@@ -1,5 +1,5 @@
 # Keycloak Startup Script for PowerShell
-Write-Host "Starting Keycloak Server..." -ForegroundColor Green
+Write-Host "Starting Keycloak 25.0.4 Server (Stable Version)..." -ForegroundColor Green
 Write-Host "====================================" -ForegroundColor Green
 Write-Host ""
 
@@ -11,6 +11,7 @@ $env:KEYCLOAK_ADMIN = "admin"
 $env:KEYCLOAK_ADMIN_PASSWORD = "admin"
 
 Write-Host "JAVA_HOME: $env:JAVA_HOME" -ForegroundColor Cyan
+Write-Host "Keycloak Version: 25.0.4 (stable)" -ForegroundColor Cyan
 Write-Host ""
 
 # Verify Java installation
@@ -20,7 +21,7 @@ Write-Host $javaVersion
 Write-Host ""
 
 # Start Keycloak
-Set-Location "$projectRoot\tools\keycloak-26.4.0\bin"
+Set-Location "$projectRoot\tools\keycloak-25.0.4\bin"
 Write-Host "Starting Keycloak in development mode..." -ForegroundColor Yellow
 Write-Host "Admin Console will be available at: http://localhost:8080/admin" -ForegroundColor Yellow
 Write-Host "Admin credentials: admin / admin" -ForegroundColor Yellow
