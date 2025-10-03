@@ -89,8 +89,8 @@ describe("Seely API e2e", () => {
       .send({ username: "owner", password: "password123" })
       .expect(201);
 
-    expect(loginRes.body).toHaveProperty("accessToken");
-    ownerToken = loginRes.body.accessToken;
+    expect(loginRes.body).toHaveProperty("access_token");
+    ownerToken = loginRes.body.access_token;
   });
 
   it("allows the recommender to create a series", async () => {
@@ -137,7 +137,7 @@ describe("Seely API e2e", () => {
       .send({ username: "reviewer", password: "password123" })
       .expect(201);
 
-    reviewerToken = loginRes.body.accessToken;
+    reviewerToken = loginRes.body.access_token;
   });
 
   it("allows the reviewer to leave a review and updates stats", async () => {

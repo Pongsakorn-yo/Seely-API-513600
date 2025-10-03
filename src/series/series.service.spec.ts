@@ -39,6 +39,8 @@ describe("SeriesService", () => {
     ratingCode: "น18+",
     ownerId: 1,
     owner: mockUser as User,
+    createdAt: new Date(),
+    updatedAt: new Date(),
   };
 
   const mockQueryBuilder = {

@@ -52,8 +52,9 @@ export class OwnershipGuard implements CanActivate {
     // ดึง HTTP request object
     const req = ctx.switchToHttp().getRequest();
 
-    // ดึง user ID จาก JWT payload (ที่ AuthGuard เพิ่มเข้ามาแล้ว)
-    const userId = req.user?.sub;
+    // ดึง user ID จาก JWT payload (รองรับทั้ง FlexibleAuthGuard และ JwtAuthGuard)
+    // FlexibleAuthGuard ใช้ req.user.id, JwtStrategy ใช้ req.user.sub
+    const userId = req.user?.id || req.user?.sub;
 
     // ดึง series ID จาก URL parameter (:id)
     const seriesId = +req.params.id;
