@@ -6,7 +6,12 @@
  * เก็บข้อมูลผู้ใช้งาน username, password (hash), role
  */
 
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+} from "typeorm";
 
 /**
  * Enum สำหรับกำหนดสิทธิ์ผู้ใช้

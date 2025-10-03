@@ -25,7 +25,6 @@ import {
 import { SeriesService } from "./series.service";
 import { CreateSeriesDto, ListSeriesQueryDto, UpdateSeriesDto } from "./dto";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
-import { AuthGuard } from "@nestjs/passport";
 import { OwnershipGuard } from "../common/guards/ownership.guard";
 import { FlexibleAuthGuard } from "../common/guards/flexible-auth.guard";
 
