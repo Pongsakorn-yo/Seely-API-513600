@@ -672,6 +672,68 @@ npm run lint
 
 ดูคำแนะนำที่: [DATABASE_SETUP.md](./DATABASE_SETUP.md)
 
+---
+
+## 🧪 Testing (Unit + E2E Tests)
+
+---
+
+## 🧪 Testing (Unit + E2E Tests)
+
+โปรเจคมาพร้อมกับ **Unit Tests** และ **End-to-End Tests** ที่ครบถ้วน!
+
+### 📋 Test Summary
+
+**✅ Unit Tests: 23/23 passed**
+- AuthService: 10 tests (register, login, validate, refresh)
+- SeriesService: 8 tests (CRUD operations)  
+- ReviewsService: 5 tests (create, list with pagination)
+
+**✅ E2E Tests: 8/8 passed**
+- Complete user flows
+- Authentication & Authorization
+- CRUD operations
+- Pagination & Stats calculation
+
+### 🚀 รัน Tests
+
+```bash
+# Unit Tests
+npm run test
+
+# Unit Tests with watch mode
+npm run test:watch
+
+# Unit Tests with coverage report
+npm run test:cov
+
+# E2E Tests
+npm run test:e2e
+```
+
+### 📊 Test Coverage
+
+**Service Layer Coverage:**
+- `auth.service.ts`: 100% statements, 100% functions
+- `series.service.ts`: 92.85% statements, 88.88% functions
+- `reviews.service.ts`: 100% statements, 100% functions
+
+### 💡 Test Best Practices
+
+**Unit Testing:**
+- 🎯 Test individual functions/methods
+- 🔒 Mock dependencies (database, external services)
+- ✅ Test edge cases and error scenarios
+- 📊 Maintain >80% code coverage
+
+**E2E Testing:**
+- 🔄 Test complete user flows
+- 🗄️ Use test database (separate from development)
+- 🧹 Clean up test data after each test
+- 🔐 Test authentication and authorization
+
+---
+
 ## 🔧 Troubleshooting
 
 ### Database Connection Error

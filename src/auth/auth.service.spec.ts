@@ -3,7 +3,7 @@
  * Auth Service Unit Tests (BONUS FEATURE #1)
  * ============================================
  * ทดสอบ business logic ของ AuthService
- * 
+ *
  * 🎯 Bonus Feature: Unit Tests (8 test cases)
  * - Register: สำเร็จ, ซ้ำ (ConflictException)
  * - Login: สำเร็จ, ผิด (UnauthorizedException)
@@ -20,11 +20,11 @@ import { AuthService } from "./auth.service";
 import { UsersService } from "../users/users.service";
 import { Role } from "../users/entities/user.entity";
 
+// Mock bcrypt module ทั้งหมด
+jest.mock("bcrypt");
+
 describe("AuthService", () => {
   let service: AuthService;
-  let usersService: UsersService;
-  let jwtService: JwtService;
-  let configService: ConfigService;
 
   const mockUser = {
     id: 1,
@@ -41,6 +41,7 @@ describe("AuthService", () => {
 
   const mockJwtService = {
     signAsync: jest.fn(),
+    verifyAsync: jest.fn(),
   };
 
   const mockConfigService = {
@@ -75,9 +76,6 @@ describe("AuthService", () => {
     }).compile();
 
     service = module.get<AuthService>(AuthService);
-    usersService = module.get<UsersService>(UsersService);
-    jwtService = module.get<JwtService>(JwtService);
-    configService = module.get<ConfigService>(ConfigService);
 
     // Reset mocks
     jest.clearAllMocks();
@@ -125,9 +123,7 @@ describe("AuthService", () => {
       const password = "password123";
 
       mockUsersService.findByUsername.mockResolvedValue(mockUser);
-      jest
-        .spyOn(bcrypt, "compare")
-        .mockImplementation(() => Promise.resolve(true as never));
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
       mockJwtService.signAsync.mockResolvedValueOnce("access-token");
       mockJwtService.signAsync.mockResolvedValueOnce("refresh-token");
 
@@ -154,9 +150,7 @@ describe("AuthService", () => {
       const password = "wrongpassword";
 
       mockUsersService.findByUsername.mockResolvedValue(mockUser);
-      jest
-        .spyOn(bcrypt, "compare")
-        .mockImplementation(() => Promise.resolve(false as never));
+      (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
       await expect(service.login(username, password)).rejects.toThrow(
         UnauthorizedException,
@@ -170,9 +164,7 @@ describe("AuthService", () => {
       const password = "password123";
 
       mockUsersService.findByUsername.mockResolvedValue(mockUser);
-      jest
-        .spyOn(bcrypt, "compare")
-        .mockImplementation(() => Promise.resolve(true as never));
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
       const result = await service.validateUser(username, password);
 
@@ -196,9 +188,7 @@ describe("AuthService", () => {
       const password = "wrongpassword";
 
       mockUsersService.findByUsername.mockResolvedValue(mockUser);
-      jest
-        .spyOn(bcrypt, "compare")
-        .mockImplementation(() => Promise.resolve(false as never));
+      (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
       const result = await service.validateUser(username, password);
 
@@ -208,23 +198,38 @@ describe("AuthService", () => {
 
   describe("refresh", () => {
     it("✅ ควรสร้าง access token ใหม่จาก refresh token ได้", async () => {
-      const userId = "1";
+      const refreshToken = "valid-refresh-token";
+      const decodedPayload = {
+        sub: mockUser.id,
+        username: mockUser.username,
+        role: mockUser.role,
+      };
 
-      mockUsersService.findById.mockResolvedValue(mockUser);
-      mockJwtService.signAsync.mockResolvedValueOnce("new-access-token");
+      mockJwtService.verifyAsync = jest.fn().mockResolvedValue(decodedPayload);
+      mockJwtService.signAsync
+        .mockResolvedValueOnce("new-access-token")
+        .mockResolvedValueOnce("new-refresh-token");
 
-      const result = await service.refresh(userId);
+      const result = await service.refresh(refreshToken);
 
-      expect(result).toHaveProperty("accessToken", "new-access-token");
-      expect(mockUsersService.findById).toHaveBeenCalledWith(Number(userId));
+      expect(result).toHaveProperty("accessToken");
+      expect(result).toHaveProperty("refreshToken");
+      expect(result.accessToken).toBe("new-access-token");
+      expect(result.refreshToken).toBe("new-refresh-token");
+      expect(mockJwtService.verifyAsync).toHaveBeenCalledWith(
+        refreshToken,
+        expect.any(Object),
+      );
     });
 
-    it("❌ ควร throw UnauthorizedException ถ้าไม่พบ user", async () => {
-      const userId = "999";
+    it("❌ ควร throw UnauthorizedException ถ้า refresh token ไม่ถูกต้อง", async () => {
+      const invalidToken = "invalid-token";
 
-      mockUsersService.findById.mockResolvedValue(null);
+      mockJwtService.verifyAsync = jest
+        .fn()
+        .mockRejectedValue(new Error("Invalid token"));
 
-      await expect(service.refresh(userId)).rejects.toThrow(
+      await expect(service.refresh(invalidToken)).rejects.toThrow(
         UnauthorizedException,
       );
     });

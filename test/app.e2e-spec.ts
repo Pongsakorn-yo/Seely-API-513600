@@ -3,7 +3,7 @@
  * End-to-End (E2E) Tests (BONUS FEATURE #2)
  * ============================================
  * ทดสอบการทำงานของ API ทั้งระบบแบบ Integration
- * 
+ *
  * 🎯 Bonus Feature: E2E Tests (8+ scenarios)
  * 1. Authentication: Register และ Login
  * 2. Create Series: ต้องมี JWT token
@@ -13,7 +13,7 @@
  * 6. List Reviews: Public
  * 7. Update Series: เฉพาะ owner (Ownership Guard)
  * 8. Delete Series: เฉพาะ owner (Ownership Guard)
- * 
+ *
  * ใช้ SQLite in-memory database สำหรับการทดสอบ
  */
 

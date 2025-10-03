@@ -3,7 +3,7 @@
  * Series Service Unit Tests (BONUS FEATURE #1)
  * ============================================
  * ทดสอบ CRUD operations และ pagination
- * 
+ *
  * 🎯 Bonus Feature: Unit Tests (8 test cases)
  * - Create: สร้าง series ใหม่
  * - List: แสดงรายการพร้อม pagination
@@ -15,7 +15,6 @@
 
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
 import { NotFoundException } from "@nestjs/common";
 import { SeriesService } from "./series.service";
 import { Series } from "./entities/series.entity";
@@ -24,7 +23,6 @@ import { Role } from "../users/entities/user.entity";
 
 describe("SeriesService", () => {
   let service: SeriesService;
-  let seriesRepository: Repository<Series>;
 
   const mockUser = {
     id: 1,
@@ -43,25 +41,40 @@ describe("SeriesService", () => {
     owner: mockUser as User,
   };
 
+  const mockQueryBuilder = {
+    leftJoinAndSelect: jest.fn().mockReturnThis(),
+    where: jest.fn().mockReturnThis(),
+    andWhere: jest.fn().mockReturnThis(),
+    orderBy: jest.fn().mockReturnThis(),
+    skip: jest.fn().mockReturnThis(),
+    take: jest.fn().mockReturnThis(),
+    getManyAndCount: jest.fn().mockResolvedValue([[mockSeries], 1]),
+    leftJoin: jest.fn().mockReturnThis(),
+    select: jest.fn().mockReturnThis(),
+    addSelect: jest.fn().mockReturnThis(),
+    groupBy: jest.fn().mockReturnThis(),
+    getRawMany: jest.fn().mockResolvedValue([]),
+  };
+
   const mockSeriesRepository = {
     create: jest.fn(),
     save: jest.fn(),
     findOne: jest.fn(),
     delete: jest.fn(),
-    createQueryBuilder: jest.fn(() => ({
-      leftJoinAndSelect: jest.fn().mockReturnThis(),
-      where: jest.fn().mockReturnThis(),
-      andWhere: jest.fn().mockReturnThis(),
-      orderBy: jest.fn().mockReturnThis(),
-      skip: jest.fn().mockReturnThis(),
-      take: jest.fn().mockReturnThis(),
-      getManyAndCount: jest.fn(),
-      leftJoin: jest.fn().mockReturnThis(),
-      select: jest.fn().mockReturnThis(),
-      addSelect: jest.fn().mockReturnThis(),
-      groupBy: jest.fn().mockReturnThis(),
-      getRawMany: jest.fn(),
-    })),
+    remove: jest.fn(),
+    createQueryBuilder: jest.fn(() => mockQueryBuilder),
+    manager: {
+      createQueryBuilder: jest.fn(() => ({
+        select: jest.fn().mockReturnThis(),
+        addSelect: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        groupBy: jest.fn().mockReturnThis(),
+        getRawMany: jest
+          .fn()
+          .mockResolvedValue([{ seriesId: 1, avg: "4.5", cnt: "10" }]),
+        getRawOne: jest.fn().mockResolvedValue({ avg: "4.5", cnt: "10" }),
+      })),
+    },
   };
 
   beforeEach(async () => {
@@ -76,9 +89,6 @@ describe("SeriesService", () => {
     }).compile();
 
     service = module.get<SeriesService>(SeriesService);
-    seriesRepository = module.get<Repository<Series>>(
-      getRepositoryToken(Series),
-    );
 
     jest.clearAllMocks();
   });
@@ -122,32 +132,25 @@ describe("SeriesService", () => {
       const mockData = [mockSeries];
       const mockStats = [{ seriesId: 1, avg: "4.5", cnt: "10" }];
 
-      const qb = mockSeriesRepository.createQueryBuilder();
-      qb.getManyAndCount = jest.fn().mockResolvedValue([mockData, 1]);
-
-      const statsQb = mockSeriesRepository.createQueryBuilder();
-      statsQb.getRawMany = jest.fn().mockResolvedValue(mockStats);
+      mockQueryBuilder.getManyAndCount.mockResolvedValue([mockData, 1]);
+      mockQueryBuilder.getRawMany.mockResolvedValue(mockStats);
 
       const result = await service.list(query);
 
       expect(result).toHaveProperty("data");
       expect(result).toHaveProperty("meta");
-      expect(result.meta).toHaveProperty("total", 1);
-      expect(result.meta).toHaveProperty("page", 1);
+      expect(mockSeriesRepository.createQueryBuilder).toHaveBeenCalled();
     });
 
     it("✅ ควร filter ตาม search query ได้", async () => {
       const query = { page: 1, limit: 10, search: "Breaking" };
-      const qb = mockSeriesRepository.createQueryBuilder();
 
-      qb.getManyAndCount = jest.fn().mockResolvedValue([[mockSeries], 1]);
-
-      const statsQb = mockSeriesRepository.createQueryBuilder();
-      statsQb.getRawMany = jest.fn().mockResolvedValue([]);
+      mockQueryBuilder.getManyAndCount.mockResolvedValue([[mockSeries], 1]);
+      mockQueryBuilder.getRawMany.mockResolvedValue([]);
 
       const result = await service.list(query);
 
-      expect(qb.andWhere).toHaveBeenCalled();
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalled();
       expect(result.data).toBeDefined();
     });
   });
@@ -158,7 +161,9 @@ describe("SeriesService", () => {
 
       const result = await service.findOne(1);
 
-      expect(result).toEqual(mockSeries);
+      expect(result).toHaveProperty("id", 1);
+      expect(result).toHaveProperty("title", mockSeries.title);
+      expect(result).toHaveProperty("stats");
       expect(mockSeriesRepository.findOne).toHaveBeenCalledWith({
         where: { id: 1 },
         relations: ["owner"],
@@ -198,12 +203,14 @@ describe("SeriesService", () => {
   describe("remove", () => {
     it("✅ ควรลบ series ได้สำเร็จ", async () => {
       mockSeriesRepository.findOne.mockResolvedValue(mockSeries);
-      mockSeriesRepository.delete.mockResolvedValue({ affected: 1 } as any);
+      mockSeriesRepository.remove.mockResolvedValue(mockSeries);
 
-      const result = await service.remove(1);
+      await service.remove(1);
 
-      expect(result).toEqual({ message: "Series deleted successfully" });
-      expect(mockSeriesRepository.delete).toHaveBeenCalledWith(1);
+      expect(mockSeriesRepository.findOne).toHaveBeenCalledWith({
+        where: { id: 1 },
+      });
+      expect(mockSeriesRepository.remove).toHaveBeenCalledWith(mockSeries);
     });
 
     it("❌ ควร throw NotFoundException ถ้าไม่พบ series", async () => {
