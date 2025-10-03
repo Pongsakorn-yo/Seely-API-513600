@@ -58,15 +58,19 @@
 - **TypeORM** - ORM with automatic synchronization (dev mode)
 
 ### Authentication
-- **Passport JWT** - JWT strategy
-- **bcrypt** - Password hashing
+- **JWT** - JSON Web Tokens for stateless authentication
+- **Passport JWT** - Authentication middleware
+- **bcrypt** - Password hashing (10 salt rounds)
 
-### Validation
+### Bonus Features 🎁
+- **Keycloak Integration** - SSO & OAuth2/OpenID Connect support ([Setup Guide](KEYCLOAK_INTEGRATION.md))
+- **Unit Tests** - 23 unit tests with Jest (100% service coverage)
+- **E2E Tests** - 8 end-to-end integration tests
+
+### Validation & Documentation
 - **Zod** - Schema validation
 - **nestjs-zod** - NestJS integration
-
-### Documentation
-- **Swagger / OpenAPI** - API documentation
+- **Swagger / OpenAPI** - Interactive API documentation
 
 ---
 

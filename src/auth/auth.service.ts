@@ -18,6 +18,7 @@ import { UsersService } from "../users/users.service";
 import * as bcrypt from "bcrypt";
 import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
+import axios from "axios";
 
 @Injectable()
 export class AuthService {
@@ -165,6 +166,105 @@ export class AuthService {
     } catch {
       // ถ้า refresh token ไม่ถูกต้องหรือหมดอายุ แจ้ง error
       throw new UnauthorizedException("Invalid refresh token");
+    }
+  }
+
+  /**
+   * ============================================
+   * Keycloak Integration (Bonus Feature)
+   * ============================================
+   */
+
+  /**
+   * สร้าง Keycloak authorization URL สำหรับ redirect user ไป login
+   * @returns Authorization URL พร้อม query parameters
+   */
+  getKeycloakAuthUrl(): string {
+    const authServerUrl = this.config.get<string>("KEYCLOAK_AUTH_SERVER_URL");
+    const realm = this.config.get<string>("KEYCLOAK_REALM");
+    const clientId = this.config.get<string>("KEYCLOAK_CLIENT_ID");
+
+    const redirectUri = `${this.config.get<string>("APP_URL") || "http://localhost:3000"}/auth/keycloak/callback`;
+
+    const params = new URLSearchParams();
+    params.append("client_id", clientId || "");
+    params.append("redirect_uri", redirectUri);
+    params.append("response_type", "code");
+    params.append("scope", "openid profile email");
+
+    return `${authServerUrl}/realms/${realm}/protocol/openid-connect/auth?${params.toString()}`;
+  }
+
+  /**
+   * Exchange authorization code สำหรับ access token จาก Keycloak
+   * @param code - Authorization code จาก callback
+   * @returns Token response จาก Keycloak
+   */
+  async exchangeKeycloakCode(code: string) {
+    const authServerUrl = this.config.get<string>("KEYCLOAK_AUTH_SERVER_URL");
+    const realm = this.config.get<string>("KEYCLOAK_REALM");
+    const clientId = this.config.get<string>("KEYCLOAK_CLIENT_ID");
+    const clientSecret = this.config.get<string>("KEYCLOAK_CLIENT_SECRET");
+
+    const redirectUri = `${this.config.get<string>("APP_URL") || "http://localhost:3000"}/auth/keycloak/callback`;
+
+    const tokenUrl = `${authServerUrl}/realms/${realm}/protocol/openid-connect/token`;
+
+    try {
+      const params = new URLSearchParams();
+      params.append("grant_type", "authorization_code");
+      params.append("code", code);
+      params.append("redirect_uri", redirectUri);
+      params.append("client_id", clientId || "");
+      params.append("client_secret", clientSecret || "");
+
+      const response = await axios.post(tokenUrl, params, {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      throw new UnauthorizedException("Failed to exchange code for token");
+    }
+  }
+
+  /**
+   * ดึงข้อมูล user จาก Keycloak access token
+   * @param accessToken - Keycloak access token
+   * @returns User info จาก Keycloak
+   */
+  async getKeycloakUserInfo(accessToken: string) {
+    const authServerUrl = this.config.get<string>("KEYCLOAK_AUTH_SERVER_URL");
+    const realm = this.config.get<string>("KEYCLOAK_REALM");
+
+    const userInfoUrl = `${authServerUrl}/realms/${realm}/protocol/openid-connect/userinfo`;
+
+    try {
+      const response = await axios.get(userInfoUrl, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      throw new UnauthorizedException("Failed to get user info from Keycloak");
+    }
+  }
+
+  /**
+   * Validate Keycloak token
+   * @param token - Access token จาก Keycloak
+   * @returns User info ถ้า token ถูกต้อง
+   */
+  async validateKeycloakToken(token: string) {
+    try {
+      const userInfo = await this.getKeycloakUserInfo(token);
+      return userInfo;
+    } catch {
+      return null;
     }
   }
 }

@@ -8,11 +8,19 @@
  * - POST /auth/refresh - Refresh token
  */
 
-import { Body, Controller, Post } from "@nestjs/common";
+import { Body, Controller, Post, Get, Res, Query } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { z } from "zod";
 import { createZodDto } from "nestjs-zod";
-import { ApiTags, ApiProperty } from "@nestjs/swagger";
+import {
+  ApiTags,
+  ApiProperty,
+  ApiOperation,
+  ApiResponse,
+  ApiQuery,
+} from "@nestjs/swagger";
+import { Response } from "express";
+import { KeycloakCallbackQueryDto } from "./dto/keycloak.dto";
 
 /**
  * Schema สำหรับ validation ข้อมูลการสมัครสมาชิก
@@ -151,5 +159,109 @@ export class AuthController {
   @Post("refresh")
   refresh(@Body() dto: RefreshDto) {
     return this.auth.refresh(dto.refreshToken);
+  }
+
+  /**
+   * ============================================
+   * Keycloak Integration Endpoints (Bonus)
+   * ============================================
+   */
+
+  /**
+   * GET /auth/keycloak/login
+   * Redirect user ไปยัง Keycloak login page
+   * @param res - Express response object
+   */
+  @Get("keycloak/login")
+  @ApiOperation({
+    summary: "Login with Keycloak (SSO)",
+    description:
+      "Redirect ไปยังหน้า login ของ Keycloak สำหรับ OAuth2/OpenID Connect authentication",
+  })
+  @ApiResponse({
+    status: 302,
+    description: "Redirect to Keycloak login page",
+  })
+  @ApiResponse({
+    status: 500,
+    description: "Keycloak server error",
+  })
+  keycloakLogin(@Res() res: Response) {
+    const authUrl = this.auth.getKeycloakAuthUrl();
+    return res.redirect(authUrl);
+  }
+
+  /**
+   * GET /auth/keycloak/callback
+   * Callback endpoint หลังจาก user login ที่ Keycloak สำเร็จ
+   * @param query - { code } - Authorization code จาก Keycloak
+   * @returns Token response และ user info
+   */
+  @Get("keycloak/callback")
+  @ApiOperation({
+    summary: "Keycloak OAuth2 Callback",
+    description:
+      "รับ authorization code จาก Keycloak หลัง login สำเร็จ และแลกเป็น access token",
+  })
+  @ApiQuery({
+    name: "code",
+    required: true,
+    description: "Authorization code จาก Keycloak",
+    example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  })
+  @ApiQuery({
+    name: "state",
+    required: false,
+    description: "State parameter สำหรับ CSRF protection",
+    example: "xyz123",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Login สำเร็จ - ส่งคืน tokens และข้อมูล user",
+    schema: {
+      example: {
+        message: "Login with Keycloak successful",
+        tokens: {
+          access_token: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
+          expires_in: 300,
+          refresh_expires_in: 1800,
+          refresh_token: "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9...",
+          token_type: "Bearer",
+          scope: "openid profile email",
+        },
+        user: {
+          sub: "6d279fea-07fd-4af1-869c-a138b2b1cf43",
+          email_verified: false,
+          name: "test test",
+          preferred_username: "testuser",
+          given_name: "test",
+          family_name: "test",
+          email: "test@example.com",
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: "Authorization code ไม่ถูกต้องหรือหมดอายุ",
+  })
+  @ApiResponse({
+    status: 500,
+    description: "Keycloak server error",
+  })
+  async keycloakCallback(@Query() query: KeycloakCallbackQueryDto) {
+    // Exchange authorization code สำหรับ tokens
+    const tokenResponse = await this.auth.exchangeKeycloakCode(query.code);
+
+    // ดึงข้อมูล user จาก access token
+    const userInfo = await this.auth.getKeycloakUserInfo(
+      tokenResponse.access_token,
+    );
+
+    return {
+      message: "Login with Keycloak successful",
+      tokens: tokenResponse,
+      user: userInfo,
+    };
   }
 }

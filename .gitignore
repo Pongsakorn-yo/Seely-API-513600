@@ -4,11 +4,6 @@ node_modules/
 # Build output
 dist/
 
-# Environment variables
-.env
-.env.local
-.env.production
-
 # IDE
 .vscode/
 .idea/
@@ -30,5 +25,15 @@ yarn-error.log*
 coverage/
 .nyc_output/
 
-# Tools (Java, Keycloak)
-tools/
+# Keycloak & Java (large binary files - should be downloaded separately)
+keycloak-*/
+jdk-*/
+tools/keycloak-*.zip
+tools/jdk-*.zip
+
+# Keycloak data
+keycloak-25.0.4/data/
+
+# Temporary files
+*.tmp
+*.temp
