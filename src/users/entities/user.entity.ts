@@ -6,7 +6,7 @@
  * เก็บข้อมูลผู้ใช้งาน username, password (hash), role
  */
 
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from "typeorm";
 
 /**
  * Enum สำหรับกำหนดสิทธิ์ผู้ใช้
@@ -51,4 +51,11 @@ export class User {
    */
   @Column({ type: "varchar", length: 10, default: Role.USER })
   role: Role;
+
+  /**
+   * วันเวลาที่สร้าง user
+   * บันทึกอัตโนมัติเมื่อสร้าง record ใหม่
+   */
+  @CreateDateColumn()
+  createdAt: Date;
 }

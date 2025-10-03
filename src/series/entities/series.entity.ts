@@ -12,6 +12,8 @@ import {
   Column,
   ManyToOne,
   Index,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from "typeorm";
 import { User } from "../../users/entities/user.entity";
 
@@ -79,4 +81,18 @@ export class Series {
   @Index()
   @Column()
   ownerId: number;
+
+  /**
+   * วันเวลาที่สร้างซีรีย์
+   * บันทึกอัตโนมัติเมื่อสร้าง record ใหม่
+   */
+  @CreateDateColumn()
+  createdAt: Date;
+
+  /**
+   * วันเวลาที่แก้ไขล่าสุด
+   * อัปเดตอัตโนมัติทุกครั้งที่มีการแก้ไข
+   */
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

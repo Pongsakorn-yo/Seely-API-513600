@@ -27,6 +27,7 @@ import { CreateSeriesDto, ListSeriesQueryDto, UpdateSeriesDto } from "./dto";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { AuthGuard } from "@nestjs/passport";
 import { OwnershipGuard } from "../common/guards/ownership.guard";
+import { FlexibleAuthGuard } from "../common/guards/flexible-auth.guard";
 
 /**
  * Controller สำหรับจัดการ Series
@@ -59,23 +60,24 @@ export class SeriesController {
   /**
    * POST /series
    * เพิ่มซีรีส์ใหม่
-   * ต้อง login และมี JWT token
+   * ต้อง login (รองรับทั้ง JWT และ Keycloak token)
    */
   @ApiBearerAuth() // ต้องใส่ Bearer token ใน Swagger
-  @UseGuards(AuthGuard("jwt")) // ตรวจสอบ JWT
+  @UseGuards(FlexibleAuthGuard) // รองรับทั้ง JWT และ Keycloak
   @Post()
   create(@Body() dto: CreateSeriesDto, @Req() req: any) {
-    // ดึง user ID จาก JWT payload (req.user.sub)
-    return this.service.create(dto, req.user.sub);
+    // ดึง user ID จาก req.user (รองรับทั้ง JWT และ Keycloak)
+    const userId = req.user.id || req.user.sub;
+    return this.service.create(dto, userId);
   }
 
   /**
    * PATCH /series/:id
    * แก้ไขซีรีส์
-   * ต้องเป็นเจ้าของซีรีส์เท่านั้น (OwnershipGuard จะตรวจสอบ)
+   * ต้องเป็นเจ้าของซีรีส์เท่านั้น (รองรับทั้ง JWT และ Keycloak)
    */
   @ApiBearerAuth()
-  @UseGuards(AuthGuard("jwt"), OwnershipGuard) // ตรวจสอบ JWT และสิทธิ์เจ้าของ
+  @UseGuards(FlexibleAuthGuard, OwnershipGuard) // รองรับทั้ง JWT และ Keycloak
   @Patch(":id")
   update(@Param("id") id: string, @Body() dto: UpdateSeriesDto) {
     return this.service.update(+id, dto);
@@ -84,10 +86,10 @@ export class SeriesController {
   /**
    * DELETE /series/:id
    * ลบซีรีส์
-   * ต้องเป็นเจ้าของซีรีส์เท่านั้น
+   * ต้องเป็นเจ้าของซีรีส์เท่านั้น (รองรับทั้ง JWT และ Keycloak)
    */
   @ApiBearerAuth()
-  @UseGuards(AuthGuard("jwt"), OwnershipGuard)
+  @UseGuards(FlexibleAuthGuard, OwnershipGuard)
   @Delete(":id")
   remove(@Param("id") id: string) {
     return this.service.remove(+id);

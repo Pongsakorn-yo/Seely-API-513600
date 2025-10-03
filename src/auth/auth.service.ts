@@ -112,9 +112,13 @@ export class AuthService {
     });
 
     return {
-      accessToken,
-      refreshToken,
-      expiresIn: accessExpires,
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      user: {
+        id: user.id,
+        username: user.username,
+        role: user.role,
+      },
     };
   }
 
@@ -267,4 +271,31 @@ export class AuthService {
       return null;
     }
   }
+
+  /**
+   * หาหรือสร้าง user จาก Keycloak user info
+   * @param userInfo - User info จาก Keycloak
+   * @returns User object ในระบบของเรา
+   */
+  async findOrCreateKeycloakUser(userInfo: any) {
+    const username = userInfo.preferred_username || userInfo.email;
+    
+    // หา user ที่มีอยู่แล้ว
+    let user = await this.users.findByUsername(username);
+    
+    if (!user) {
+      // สร้าง user ใหม่จาก Keycloak
+      // ใช้ random password เพราะ Keycloak จัดการ authentication
+      const randomPassword = Math.random().toString(36).slice(-12);
+      const hash = await bcrypt.hash(randomPassword, 10);
+      
+      user = await this.users.create({
+        username,
+        password: hash,
+      });
+    }
+    
+    return user;
+  }
 }
+
