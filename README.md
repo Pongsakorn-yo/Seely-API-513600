@@ -1,6 +1,12 @@
-# 🎬 Seely API
-
-> **API สำหรับแนะนำและรีวิวซีรีส์** - ระบบ Community-driven ที่ให้ผู้ใช้แนะนำซีรีส์และให้คะแนนได้
+# 🎬 Seely## 📑 สารบัญ
+- [คุณสมบัติหลัก](#-คุณสมบัติหลัก)
+- [เทคโนโลยีที่ใช้](#-เทคโนโลยีที่ใช้)
+- [การติดตั้ง](#-การติดตั้ง)
+- [การใช้งาน API](#-การใช้งาน-api)
+- [การทดสอบด้วย Postman](#-การทดสอบดวย-postman) 📋
+- [โครงสร้างโปรเจค](#-โครงสร้างโปรเจค)
+- [ฐานข้อมูล](#-ฐานข้อมูล)
+- [การพัฒนา](#-การพัฒนา)**API สำหรับแนะนำและรีวิวซีรีส์** - ระบบ Community-driven ที่ให้ผู้ใช้แนะนำซีรีส์และให้คะแนนได้
 
 [![NestJS](https://img.shields.io/badge/NestJS-E0234E?style=flat&logo=nestjs&logoColor=white)](https://nestjs.com/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -356,7 +362,75 @@ Content-Type: application/json
 
 ---
 
-## 📁 โครงสร้างโปรเจค
+## � การทดสอบด้วย Postman
+
+### 🚀 Quick Start (5 นาที)
+
+เราได้เตรียม Postman Collection และ Environment ไว้พร้อมใช้งาน!
+
+#### 1. Import ไฟล์เข้า Postman
+- ✅ `Seely-API.postman_collection.json` - Collection ครบ 27 requests
+- ✅ `Seely-API-Local.postman_environment.json` - Environment variables
+
+#### 2. เริ่มทดสอบ
+```bash
+# รัน Server
+npm run start:dev
+
+# เปิด Postman → Import 2 ไฟล์ → Run Collection!
+```
+
+#### 3. ผลลัพธ์ที่ได้
+- ✅ **27 Test Cases** ครอบคลุมทุก requirement
+- ✅ **Auto-save Tokens** - บันทึก JWT tokens อัตโนมัติ
+- ✅ **Validation Tests** - ทดสอบ input validation
+- ✅ **Authorization Tests** - ทดสอบ ownership guard
+- ✅ **Calculation Tests** - ทดสอบคะแนนเฉลี่ยและ review count
+
+### 📚 เอกสารการทดสอบ
+
+| เอกสาร | รายละเอียด |
+|--------|-----------|
+| **[QUICK_START_TESTING.md](QUICK_START_TESTING.md)** | คู่มือเริ่มต้นใช้งานด่วน (5 นาที) |
+| **[TESTING_GUIDE.md](TESTING_GUIDE.md)** | คู่มือทดสอบแบบละเอียด + ตัวอย่าง Request/Response ทั้งหมด |
+
+### 🎯 Test Coverage
+
+| Category | Tests | Coverage |
+|----------|-------|----------|
+| User Management | 4 requests | ✅ Create, Validation |
+| Authentication | 5 requests | ✅ Login, JWT, Refresh Token |
+| Series CRUD | 11 requests | ✅ CRUD, Pagination, Ownership |
+| Reviews | 8 requests | ✅ Create, Average Score, Count |
+| Keycloak (Bonus) | 3 requests | ✅ SSO Integration |
+| **Total** | **27 requests** | **100% Requirements** |
+
+### 💡 ตัวอย่างการทดสอบ
+
+#### ✅ Test 1: สร้าง User และ Login
+```bash
+POST /users → 201 Created
+POST /auth/login → 200 OK (รับ access_token)
+```
+
+#### ✅ Test 2: สร้างซีรีย์และรีวิว
+```bash
+POST /series → 201 Created (averageScore=0, reviewCount=0)
+POST /reviews (score=9) → 201 Created
+GET /series/1 → averageScore=9, reviewCount=1 ✅
+POST /reviews (score=10) → 201 Created
+GET /series/1 → averageScore=9.5, reviewCount=2 ✅
+```
+
+#### ✅ Test 3: Ownership Guard
+```bash
+PATCH /series/1 (owner token) → 200 OK ✅
+PATCH /series/1 (other user token) → 403 Forbidden ✅
+```
+
+---
+
+## �📁 โครงสร้างโปรเจค
 
 ```
 Seely-API-513600/

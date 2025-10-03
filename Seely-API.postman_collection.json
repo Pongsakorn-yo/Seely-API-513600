@@ -1,0 +1,1171 @@
+{
+  "info": {
+    "name": "Seely API - Complete Test Suite",
+    "_postman_id": "seely-api-513600",
+    "description": "Complete test suite for Seely API project - includes all endpoints for testing",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. User Management",
+      "item": [
+        {
+          "name": "Create User 1 (Reviewer)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set(\"user1_id\", response.id);",
+                  "    console.log(\"User 1 ID saved:\", response.id);",
+                  "}",
+                  "",
+                  "pm.test(\"Status code is 201\", () => {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has user data\", () => {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property(\"id\");",
+                  "    pm.expect(response).to.have.property(\"username\");",
+                  "    pm.expect(response).to.have.property(\"email\");",
+                  "});",
+                  "",
+                  "pm.test(\"Password is not in response\", () => {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.not.have.property(\"password\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"reviewer1\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users",
+              "host": ["{{base_url}}"],
+              "path": ["users"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create User 2 (Rater)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set(\"user2_id\", response.id);",
+                  "    console.log(\"User 2 ID saved:\", response.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"rater1\",\n  \"password\": \"password456\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users",
+              "host": ["{{base_url}}"],
+              "path": ["users"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create User 3 (Rater 2)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set(\"user3_id\", response.id);",
+                  "    console.log(\"User 3 ID saved:\", response.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"rater2\",\n  \"password\": \"password789\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users",
+              "host": ["{{base_url}}"],
+              "path": ["users"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Test Validation (Should Fail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", () => {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has validation errors\", () => {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property(\"message\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"ab\",\n  \"password\": \"12345\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users",
+              "host": ["{{base_url}}"],
+              "path": ["users"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Authentication",
+      "item": [
+        {
+          "name": "Login User 1 (Reviewer)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set(\"access_token\", response.access_token);",
+                  "    pm.environment.set(\"refresh_token\", response.refresh_token);",
+                  "    console.log(\"User 1 tokens saved\");",
+                  "}",
+                  "",
+                  "pm.test(\"Status code is 200\", () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has tokens\", () => {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property(\"access_token\");",
+                  "    pm.expect(response).to.have.property(\"refresh_token\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"reviewer1\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login User 2 (Rater)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set(\"user2_access_token\", response.access_token);",
+                  "    console.log(\"User 2 token saved\");",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"rater1\",\n  \"password\": \"password456\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login User 3 (Rater 2)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set(\"user3_access_token\", response.access_token);",
+                  "    console.log(\"User 3 token saved\");",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"rater2\",\n  \"password\": \"password789\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login Failed (Wrong Password)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401\", () => {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"reviewer1\",\n  \"password\": \"wrongpassword\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set(\"access_token\", response.access_token);",
+                  "    pm.environment.set(\"refresh_token\", response.refresh_token);",
+                  "    console.log(\"Tokens refreshed\");",
+                  "}",
+                  "",
+                  "pm.test(\"Status code is 200\", () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/refresh",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "refresh"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. Series CRUD",
+      "item": [
+        {
+          "name": "Create Series 1 - Breaking Bad",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set(\"series_id\", response.id);",
+                  "    pm.environment.set(\"series1_id\", response.id);",
+                  "    console.log(\"Series 1 ID saved:\", response.id);",
+                  "}",
+                  "",
+                  "pm.test(\"Status code is 201\", () => {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Initial scores are 0\", () => {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.averageScore).to.equal(0);",
+                  "    pm.expect(response.reviewCount).to.equal(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Breaking Bad\",\n  \"description\": \"ซีรีย์เรื่องราวของครูสอนเคมีที่กลายเป็นเจ้าพ่อยาเสพติด เนื้อเรื่องเข้มข้นและตื่นเต้น\",\n  \"year\": 2008,\n  \"reviewText\": \"ซีรีย์ที่ดีที่สุดเรื่องหนึ่งในประวัติศาสตร์โทรทัศน์ การเล่าเรื่องและการแสดงเยี่ยมยอด\",\n  \"rating\": \"น 18+\",\n  \"reviewerScore\": 10\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/series",
+              "host": ["{{base_url}}"],
+              "path": ["series"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Series 2 - Stranger Things",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set(\"series2_id\", response.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Stranger Things\",\n  \"description\": \"เรื่องราวลี้ลับในเมืองเล็กๆ ที่เด็กหายตัวไป มีสิ่งเหนือธรรมชาติเข้ามาเกี่ยวข้อง\",\n  \"year\": 2016,\n  \"reviewText\": \"ซีรีย์แนว sci-fi ที่น่าติดตาม บรรยากาศยุค 80s สุดคลาสสิก\",\n  \"rating\": \"น 13+\",\n  \"reviewerScore\": 9\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/series",
+              "host": ["{{base_url}}"],
+              "path": ["series"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Series 3 - พี่มาก..พระโขนง",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set(\"series3_id\", response.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"พี่มาก..พระโขนง\",\n  \"description\": \"ซีรีย์ตลกผีไทย เรื่องราวของหนุ่มที่มาอยู่กับแฟนสาวที่เป็นผี\",\n  \"year\": 2013,\n  \"reviewText\": \"ตลกดีมีเนื้อเรื่อง เหมาะกับครอบครัว\",\n  \"rating\": \"ท ทั่วไป\",\n  \"reviewerScore\": 8\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/series",
+              "host": ["{{base_url}}"],
+              "path": ["series"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Series Without Auth (Should Fail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401\", () => {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Test Series\",\n  \"description\": \"Test\",\n  \"year\": 2024,\n  \"reviewText\": \"Test\",\n  \"rating\": \"ท ทั่วไป\",\n  \"reviewerScore\": 8\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/series",
+              "host": ["{{base_url}}"],
+              "path": ["series"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Invalid Rating (Should Fail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", () => {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Test Series\",\n  \"description\": \"Test\",\n  \"year\": 2024,\n  \"reviewText\": \"Test\",\n  \"rating\": \"R-18\",\n  \"reviewerScore\": 10\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/series",
+              "host": ["{{base_url}}"],
+              "path": ["series"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Series (No Auth Required)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has pagination\", () => {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property(\"data\");",
+                  "    pm.expect(response).to.have.property(\"total\");",
+                  "    pm.expect(response).to.have.property(\"page\");",
+                  "    pm.expect(response).to.have.property(\"limit\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/series",
+              "host": ["{{base_url}}"],
+              "path": ["series"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Series with Pagination (page=1, limit=2)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/series?page=1&limit=2",
+              "host": ["{{base_url}}"],
+              "path": ["series"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Series by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has series data\", () => {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property(\"id\");",
+                  "    pm.expect(response).to.have.property(\"title\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/series/{{series_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["series", "{{series_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Series (Owner)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Series updated\", () => {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.reviewText).to.include(\"อัปเดต\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reviewText\": \"อัปเดต: ซีรีย์ที่ดีที่สุดในประวัติศาสตร์โทรทัศน์ ทุกตอนสร้างความตื่นเต้น\",\n  \"reviewerScore\": 10\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/series/{{series_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["series", "{{series_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Series by Another User (Should Fail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 403\", () => {",
+                  "    pm.response.to.have.status(403);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user2_access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reviewText\": \"พยายามแก้ไข\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/series/{{series_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["series", "{{series_id}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Series (Owner)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/series/{{series3_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["series", "{{series3_id}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "4. Reviews",
+      "item": [
+        {
+          "name": "Create Review 1 (User 2 -> Series 1)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", () => {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Review created\", () => {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.have.property(\"score\");",
+                  "    pm.expect(response).to.have.property(\"comment\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user2_access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"seriesId\": 1,\n  \"score\": 9,\n  \"comment\": \"ซีรีย์เยี่ยมมาก! การแสดงของ Bryan Cranston สุดยอด\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/reviews",
+              "host": ["{{base_url}}"],
+              "path": ["reviews"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Check Average Score After Review 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Average score is 9\", () => {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.averageScore).to.equal(9);",
+                  "    pm.expect(response.reviewCount).to.equal(1);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/series/1",
+              "host": ["{{base_url}}"],
+              "path": ["series", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Review 2 (User 3 -> Series 1)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user3_access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"seriesId\": 1,\n  \"score\": 10,\n  \"comment\": \"เป็นซีรีย์ที่ดีที่สุดที่เคยดู!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/reviews",
+              "host": ["{{base_url}}"],
+              "path": ["reviews"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Check Average Score After Review 2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Average score is 9.5\", () => {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.averageScore).to.equal(9.5);",
+                  "    pm.expect(response.reviewCount).to.equal(2);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/series/1",
+              "host": ["{{base_url}}"],
+              "path": ["series", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Reviews for Series 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Has reviews\", () => {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response).to.be.an(\"array\");",
+                  "    pm.expect(response.length).to.be.at.least(1);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/series/1/reviews",
+              "host": ["{{base_url}}"],
+              "path": ["series", "1", "reviews"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Review 3 (User 2 -> Series 2)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user2_access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"seriesId\": 2,\n  \"score\": 8,\n  \"comment\": \"สนุกดี แต่บางซีซั่นช้าไปหน่อย\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/reviews",
+              "host": ["{{base_url}}"],
+              "path": ["reviews"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Review 4 (User 3 -> Series 2)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user3_access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"seriesId\": 2,\n  \"score\": 9,\n  \"comment\": \"ชอบบรรยากาศยุค 80s มาก\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/reviews",
+              "host": ["{{base_url}}"],
+              "path": ["reviews"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Review Without Auth (Should Fail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 401\", () => {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"seriesId\": 1,\n  \"score\": 10,\n  \"comment\": \"Test\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/reviews",
+              "host": ["{{base_url}}"],
+              "path": ["reviews"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "5. Keycloak (Bonus)",
+      "item": [
+        {
+          "name": "Get Keycloak Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set(\"keycloak_access_token\", response.access_token);",
+                  "    console.log(\"Keycloak token saved\");",
+                  "}",
+                  "",
+                  "pm.test(\"Status code is 200\", () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "grant_type",
+                  "value": "password",
+                  "type": "text"
+                },
+                {
+                  "key": "client_id",
+                  "value": "seely-api",
+                  "type": "text"
+                },
+                {
+                  "key": "client_secret",
+                  "value": "JRurGjK8s2wdu2RnmOwv6p5NEZXHwSCh",
+                  "type": "text"
+                },
+                {
+                  "key": "username",
+                  "value": "testuser",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "pass123",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost:8080/realms/seely/protocol/openid-connect/token",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8080",
+              "path": ["realms", "seely", "protocol", "openid-connect", "token"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Series with Keycloak Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{keycloak_access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Test with Keycloak\",\n  \"description\": \"Testing Keycloak authentication\",\n  \"year\": 2025,\n  \"reviewText\": \"Test\",\n  \"rating\": \"ท ทั่วไป\",\n  \"reviewerScore\": 8\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/series",
+              "host": ["{{base_url}}"],
+              "path": ["series"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Keycloak Login URL",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/keycloak/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "keycloak", "login"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000/api/v1",
+      "type": "string"
+    }
+  ]
+}
